@@ -7,6 +7,7 @@ Built as a free, open-source alternative to paid clipboard managers. No account,
 ## Features
 
 - **Bottom shelf** of cards: text, links and images, each with the source app's icon, a relative timestamp and a character count
+- **Pinboards** - named collections of saved clips, shown as tabs along the top of the shelf. Pinned clips are never pruned (including images). Create one with "+", rename/delete from a tab's right-click menu
 - **Instant search** - just start typing when the shelf is open
 - **Paste straight into the previous app** with Enter, or quick-paste the first nine items with Cmd+1-9
 - **Long history** - text and links are kept forever; images are pruned after 30 days
@@ -24,7 +25,10 @@ Built as a free, open-source alternative to paid clipboard managers. No account,
 | Left / Right | Move between cards |
 | Enter | Paste the selected card into the previous app |
 | Cmd+1 ... Cmd+9 | Paste the 1st-9th card |
-| Cmd+Delete | Delete the selected card |
+| Cmd+Delete | Delete the selected card (on a pinboard tab: remove it from that pinboard) |
+| Tab / Shift+Tab, or Cmd+] / Cmd+[ | Next / previous tab (Clipboard, then each pinboard) |
+| Cmd+P | Pin the selected card to a pinboard (picker: arrows or 1-9, Enter) |
+| Right-click a card | "Pin to...", "Remove from pinboard" |
 | Esc | Clear the search, then close the shelf |
 
 Binding Cmd+Shift+V overrides "Paste and Match Style" in other apps while ppaste is running.
@@ -64,7 +68,6 @@ xcodegen generate   # regenerate PPaste.xcodeproj from project.yml
 
 ## Roadmap
 
-- Pinboards (named collections of saved items)
 - Rich link previews
 - Rich text and file clips, with true "paste as plain text"
 - Launch at login
