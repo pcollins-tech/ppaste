@@ -16,9 +16,16 @@ final class ShelfController {
     private var clickMonitor: Any?
     private let model = ShelfModel()
 
-    init(store: ClipStore, watcher: PasteboardWatcher) {
-        self.store = store; self.watcher = watcher
+    private let fetcher: LinkPreviewFetcher
+
+    init(store: ClipStore, watcher: PasteboardWatcher, fetcher: LinkPreviewFetcher) {
+        self.store = store; self.watcher = watcher; self.fetcher = fetcher
         model.store = store
+        fetcher.onChange = { [weak self] in
+            guard let self else { return }
+            self.model.pendingIDs = self.fetcher.pendingIDs
+            if self.panel?.isVisible == true { self.model.reload() } // a preview arrived while the shelf is open
+        }
         model.onPaste = { [weak self] item, plain in self?.paste(item, plainText: plain) }
         model.onClose = { [weak self] in self?.hide() }
         watcher.onChange = { [weak self] in
@@ -31,6 +38,7 @@ final class ShelfController {
 
     private func show() {
         previousApp = NSWorkspace.shared.frontmostApplication
+        model.pendingIDs = fetcher.pendingIDs
         model.reset()
         let screen = NSScreen.screens.first { $0.frame.contains(NSEvent.mouseLocation) } ?? NSScreen.main!
         let height: CGFloat = 340

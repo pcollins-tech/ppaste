@@ -13,6 +13,7 @@ Personal macOS clipboard-history app (Paste replacement). Swift, macOS 14+, menu
 
 ## Decisions
 - Text/links kept forever; images pruned after 30 days. Local only, no sync.
+- Link previews (`App/LinkPreviewFetcher.swift`) are the only network access: public http(s) hosts only (`LinkPreviewPolicy`), capped, no cookies, opt-out via menu (`fetchLinkPreviews` default). Preview images are pruned with the 30-day rule.
 - Skips concealed/transient pasteboard items and password-manager apps.
 - Pasting simulates Cmd+V, which needs Accessibility permission (ad-hoc signing may reset the grant on rebuild).
 - UI rule: any control that triggers async work must show a pending state.
