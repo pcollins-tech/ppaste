@@ -21,6 +21,10 @@ final class ShelfController {
         model.store = store
         model.onPaste = { [weak self] item, plain in self?.paste(item, plainText: plain) }
         model.onClose = { [weak self] in self?.hide() }
+        watcher.onChange = { [weak self] in
+            guard self?.panel?.isVisible == true else { return }
+            self?.model.reload() // live-update the shelf if it's open while you copy
+        }
     }
 
     func toggle() { panel?.isVisible == true ? hide() : show() }
