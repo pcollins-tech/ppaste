@@ -1,12 +1,14 @@
 import AppKit
+import ServiceManagement
 import PPasteCore
 
-final class AppDelegate: NSObject, NSApplicationDelegate {
+final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     private var store: ClipStore!
     private var watcher: PasteboardWatcher!
     private var shelf: ShelfController!
     private var hotKeys: [HotKey] = []
     private var statusItem: NSStatusItem!
+    private var loginItem: NSMenuItem!
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         let support = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
@@ -31,9 +33,27 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         let menu = NSMenu()
         menu.addItem(withTitle: "Show Clipboard History", action: #selector(show), keyEquivalent: "").target = self
         menu.addItem(.separator())
+        loginItem = menu.addItem(withTitle: "Launch at Login", action: #selector(toggleLaunchAtLogin), keyEquivalent: "")
+        loginItem.target = self
         menu.addItem(withTitle: "Clear All History…", action: #selector(clearAll), keyEquivalent: "").target = self
         menu.addItem(withTitle: "Quit ppaste", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
+        menu.delegate = self
         statusItem.menu = menu
+    }
+
+    func menuNeedsUpdate(_ menu: NSMenu) {
+        loginItem.state = SMAppService.mainApp.status == .enabled ? .on : .off
+    }
+
+    @objc private func toggleLaunchAtLogin() {
+        do {
+            if SMAppService.mainApp.status == .enabled { try SMAppService.mainApp.unregister() }
+            else { try SMAppService.mainApp.register() }
+        } catch {
+            let alert = NSAlert(error: error)
+            alert.informativeText = "Launch at login only works when ppaste is installed in /Applications.\n\n" + error.localizedDescription
+            alert.runModal()
+        }
     }
 
     @objc private func show() { shelf.toggle() }
