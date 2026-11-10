@@ -406,41 +406,48 @@ private func hostName(of text: String?) -> String? {
 
 /// Link card body once a preview exists: image fills the body, title and host sit on a gradient underneath.
 /// Falls back gracefully when there is no image (title + host + URL) or no title (image + host).
+///
+/// Everything is layered as overlays on a fixed-size base. An image placed directly in a ZStack would report its
+/// full (scaledToFill) size to the layout and push the title/host sideways, so the base alone decides the size.
 private struct LinkPreviewBody: View {
     let item: ClipItem
 
     var body: some View {
         let host = hostName(of: item.text) ?? ""
         let image = item.linkImagePath.flatMap { NSImage(contentsOfFile: $0) }
-        ZStack(alignment: .bottomLeading) {
-            if let image {
-                if item.linkImageIsIcon == true {
-                    Image(nsImage: image).resizable().scaledToFit().frame(width: 56, height: 56)
-                        .clipShape(RoundedRectangle(cornerRadius: 10))
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                        .background(Color(white: 0.14))
-                } else {
-                    Image(nsImage: image).resizable().scaledToFill()
-                        .frame(maxWidth: .infinity, maxHeight: .infinity).clipped()
-                }
-                LinearGradient(colors: [.clear, .black.opacity(0.85)], startPoint: .top, endPoint: .bottom)
-                    .frame(height: 80).frame(maxHeight: .infinity, alignment: .bottom)
-            }
-            VStack(alignment: .leading, spacing: 2) {
-                if let title = item.linkTitle {
-                    Text(title).font(.system(size: 13, weight: .semibold)).lineLimit(image == nil ? 5 : 2)
-                }
-                Text(host).font(.caption).foregroundStyle(.secondary).lineLimit(1)
-                if image == nil && item.linkTitle != nil {
-                    Text(item.text ?? "").font(.caption2).foregroundStyle(.tertiary).lineLimit(2)
+        Color(white: 0.14)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .overlay {
+                if let image {
+                    if item.linkImageIsIcon == true {
+                        Image(nsImage: image).resizable().scaledToFit().frame(width: 56, height: 56)
+                            .clipShape(RoundedRectangle(cornerRadius: 10))
+                    } else {
+                        Image(nsImage: image).resizable().scaledToFill()
+                    }
                 }
             }
-            .padding(10)
-            .frame(maxWidth: .infinity, maxHeight: image == nil ? .infinity : nil, alignment: .topLeading)
-        }
-        .frame(width: CardView.width) // a scaledToFill image would otherwise widen the card layout and shift the header/footer
-        .frame(maxHeight: .infinity)
-        .clipped()
+            .overlay(alignment: .bottom) {
+                if image != nil {
+                    LinearGradient(colors: [.clear, .black.opacity(0.85)], startPoint: .top, endPoint: .bottom)
+                        .frame(height: 80)
+                }
+            }
+            .overlay(alignment: image == nil ? .topLeading : .bottomLeading) {
+                VStack(alignment: .leading, spacing: 2) {
+                    if let title = item.linkTitle {
+                        Text(title).font(.system(size: 13, weight: .semibold)).lineLimit(image == nil ? 5 : 2)
+                            .multilineTextAlignment(.leading)
+                    }
+                    Text(host).font(.caption).foregroundStyle(.secondary).lineLimit(1)
+                    if image == nil && item.linkTitle != nil {
+                        Text(item.text ?? "").font(.caption2).foregroundStyle(.tertiary).lineLimit(2)
+                    }
+                }
+                .padding(10)
+                .frame(maxWidth: .infinity, alignment: .leading)
+            }
+            .clipped()
     }
 }
 
