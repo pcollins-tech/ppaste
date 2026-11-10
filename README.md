@@ -37,18 +37,16 @@ Requires macOS 14 (Sonoma) or later and Xcode.
 brew install xcodegen
 git clone https://github.com/pcollins-tech/ppaste.git
 cd ppaste
-xcodegen generate
-xcodebuild -project PPaste.xcodeproj -scheme PPaste -configuration Release -derivedDataPath build build
-open build/Build/Products/Release/PPaste.app
+./scripts/install.sh
 ```
 
-Drag `PPaste.app` into `/Applications` to keep it.
+This builds a Release version, copies it to `/Applications/PPaste.app` and launches it. Run it again to update.
 
 ### Permissions
 
 The first time you paste, macOS asks for **Accessibility** access. ppaste needs it to send Cmd+V to the app you were using. Without it, the item is still copied to your clipboard and you can paste it yourself.
 
-The app is signed ad-hoc, so macOS may ask you to grant Accessibility again after a rebuild. Signing with your own Apple ID avoids that.
+The app is signed ad-hoc, so macOS may ask you to grant Accessibility again after a rebuild. To avoid that, sign with a stable identity: `CODESIGN_IDENTITY="Your Certificate Name" ./scripts/install.sh`.
 
 ## Development
 
