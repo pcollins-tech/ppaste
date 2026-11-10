@@ -35,6 +35,14 @@ public final class ClipStore: Sendable {
                 t.primaryKey(["pinboardID", "clipID"])
             }
         }
+        m.registerMigration("v3_link_previews") { db in
+            try db.alter(table: "clip") { t in
+                t.add(column: "linkTitle", .text)
+                t.add(column: "linkImagePath", .text)
+                t.add(column: "linkImageIsIcon", .boolean)
+                t.add(column: "linkFetchedAt", .datetime)
+            }
+        }
         try m.migrate(db)
     }
 
@@ -168,6 +176,35 @@ public final class ClipStore: Sendable {
             let old = try req.fetchAll(db)
             _ = try req.deleteAll(db)
             return old.compactMap(\.imagePath)
+        }
+    }
+
+    /// Record the outcome of a link preview fetch. Title/image may be nil for a failed fetch;
+    /// `fetchedAt` still marks the attempt so a clip is never fetched twice.
+    /// Returns false if the clip no longer exists.
+    @discardableResult
+    public func saveLinkPreview(id: Int64, title: String?, imagePath: String?, imageIsIcon: Bool = false,
+                                fetchedAt: Date = Date()) throws -> Bool {
+        try db.write { db in
+            try ClipItem.filter(key: id).updateAll(db,
+                Column("linkTitle").set(to: title),
+                Column("linkImagePath").set(to: imagePath),
+                Column("linkImageIsIcon").set(to: imagePath == nil ? nil : imageIsIcon),
+                Column("linkFetchedAt").set(to: fetchedAt)) > 0
+        }
+    }
+
+    public func item(id: Int64) throws -> ClipItem? { try db.read { try ClipItem.fetchOne($0, key: id) } }
+
+    /// Drop preview images fetched before `cutoff`; the clip and its title are kept.
+    /// Returns the image paths to remove from disk.
+    @discardableResult
+    public func pruneLinkPreviewImages(olderThan cutoff: Date) throws -> [String] {
+        try db.write { db in
+            let req = ClipItem.filter(Column("linkImagePath") != nil && Column("linkFetchedAt") < cutoff)
+            let old = try req.fetchAll(db)
+            try req.updateAll(db, Column("linkImagePath").set(to: nil), Column("linkImageIsIcon").set(to: nil))
+            return old.compactMap(\.linkImagePath)
         }
     }
 }

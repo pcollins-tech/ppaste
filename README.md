@@ -12,6 +12,7 @@ Built as a free, open-source alternative to paid clipboard managers. No account,
 - **Paste straight into the previous app** with Enter, or quick-paste the first nine items with Cmd+1-9
 - **Long history** - text and links are kept forever; images are pruned after 30 days
 - **Duplicates are merged** - copying something again moves it to the front instead of cluttering the list
+- **Rich link previews** - copied web links show the page title and preview image (falls back to the site icon), fetched in the background; can be switched off from the menu bar (see Privacy)
 - **Privacy-aware** - ignores concealed/transient pasteboard items and password managers (1Password, Bitwarden, KeePassXC, Keychain, Passwords)
 - **Menu-bar only** - no Dock icon, native Swift/SwiftUI, tiny footprint
 - **Local storage** in a SQLite database at `~/Library/Application Support/ppaste/`
@@ -68,15 +69,21 @@ xcodegen generate   # regenerate PPaste.xcodeproj from project.yml
 
 ## Roadmap
 
-- Rich link previews
 - Rich text and file clips, with true "paste as plain text"
-- Launch at login
 - Configurable hotkey and ignore list
 - Full-text search
 
 ## Privacy
 
-ppaste stores everything on your machine and makes no network requests. Anything you copy is saved, so treat the history folder like your clipboard: it can contain sensitive data. Use the menu-bar item "Clear All History..." to wipe it.
+ppaste stores everything on your machine. Anything you copy is saved, so treat the history folder like your clipboard: it can contain sensitive data. Use the menu-bar item "Clear All History..." to wipe it.
+
+**Link previews make network requests.** When you copy a web link, ppaste (by default) contacts that link's host to read the page title and a preview image, so the site can see a request from your IP address. This is the only network access ppaste has; nothing else is sent anywhere, and nothing is sent to any server run by ppaste.
+
+- Turn it off with the menu-bar item **Fetch Link Previews** (checkmark = on). The setting is remembered. With it off, ppaste makes no network requests at all and link cards show the plain URL.
+- Only `http` and `https` links are fetched, once per copied link, with an 8 second timeout. Responses are capped (about 1 MB of HTML, 2 MB per image). Requests use a private session with no cookies, credentials or cache and a generic User-Agent.
+- **Skipped entirely:** `localhost`, `.local`/`.internal`/`.lan` and other single-label or intranet host names, private and link-local IP addresses (10.x, 172.16-31.x, 192.168.x, 127.x, 169.254.x, IPv6 addresses), links containing a username or password, and links whose query string or fragment has parameters that look like secrets (names containing token, key, secret, password, auth, signature, session, code and similar). Redirects to such addresses are refused too.
+- Not covered: a link can still be private without looking it. A hostname that publicly resolves to an internal address is not detected, and secrets embedded in a URL path are not detected. If that matters to you, turn previews off.
+- Preview images are stored in `~/Library/Application Support/ppaste/link-previews/` and deleted after 30 days, like image clips. The link and its title are kept.
 
 ## Contributing
 

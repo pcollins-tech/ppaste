@@ -18,6 +18,8 @@ final class ShelfModel: ObservableObject {
     @Published var items: [ClipItem] = []
     @Published var query = "" { didSet { reload() } }
     @Published var selection = 0
+    /// Link clips whose preview is still being fetched.
+    @Published var pendingIDs: Set<Int64> = []
     @Published var pinboards: [Pinboard] = []
     @Published var memberships: [Int64: Set<Int64>] = [:]
     @Published var tab: ShelfTab = .clipboard
@@ -50,7 +52,10 @@ final class ShelfModel: ObservableObject {
     func deleteSelected() {
         guard items.indices.contains(selection), let id = items[selection].id else { return }
         if case .pinboard(let board) = tab { try? store.remove(clipID: id, fromPinboard: board) }
-        else { try? store.delete(id: id) }
+        else {
+            if let p = items[selection].linkImagePath { try? FileManager.default.removeItem(atPath: p) }
+            try? store.delete(id: id)
+        }
         reload()
     }
 
@@ -260,6 +265,7 @@ struct ShelfView: View {
                 LazyHStack(spacing: 12) {
                     ForEach(Array(model.items.enumerated()), id: \.element.id) { idx, item in
                         CardView(item: item, index: idx + 1, selected: idx == model.selection,
+                                 loadingPreview: item.id.map(model.pendingIDs.contains) ?? false,
                                  pinned: !(model.memberships[item.id ?? -1] ?? []).isEmpty)
                             .id(idx)
                             .onTapGesture(count: 2) { model.selection = idx; model.pasteSelected() }
@@ -343,8 +349,10 @@ struct CardView: View {
     let item: ClipItem
     let index: Int
     let selected: Bool
+    var loadingPreview = false
     var pinned = false
 
+    private var hasPreview: Bool { (item.linkTitle?.isEmpty == false) || item.linkImagePath != nil }
     private var headerColor: Color {
         switch item.kind { case .text: .blue; case .link: .orange; case .image: .purple }
     }
@@ -368,6 +376,10 @@ struct CardView: View {
             Group {
                 if item.kind == .image, let p = item.imagePath, let img = NSImage(contentsOfFile: p) {
                     Image(nsImage: img).resizable().scaledToFit().padding(8)
+                } else if item.kind == .link, hasPreview {
+                    LinkPreviewBody(item: item)
+                } else if item.kind == .link, loadingPreview {
+                    LinkLoadingBody(text: item.text ?? "")
                 } else {
                     Text(item.text ?? "").font(.system(size: 13)).lineLimit(9).padding(10)
                         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
@@ -382,5 +394,67 @@ struct CardView: View {
         .background(Color(white: 0.07), in: RoundedRectangle(cornerRadius: 14))
         .clipShape(RoundedRectangle(cornerRadius: 14))
         .overlay(RoundedRectangle(cornerRadius: 14).stroke(selected ? Color.accentColor : .clear, lineWidth: 3))
+    }
+}
+
+private func hostName(of text: String?) -> String? {
+    guard let t = text?.trimmingCharacters(in: .whitespacesAndNewlines), let host = URL(string: t)?.host else { return nil }
+    return host.hasPrefix("www.") ? String(host.dropFirst(4)) : host
+}
+
+/// Link card body once a preview exists: image fills the body, title and host sit on a gradient underneath.
+/// Falls back gracefully when there is no image (title + host + URL) or no title (image + host).
+private struct LinkPreviewBody: View {
+    let item: ClipItem
+
+    var body: some View {
+        let host = hostName(of: item.text) ?? ""
+        let image = item.linkImagePath.flatMap { NSImage(contentsOfFile: $0) }
+        ZStack(alignment: .bottomLeading) {
+            if let image {
+                if item.linkImageIsIcon == true {
+                    Image(nsImage: image).resizable().scaledToFit().frame(width: 56, height: 56)
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .background(Color(white: 0.14))
+                } else {
+                    Image(nsImage: image).resizable().scaledToFill()
+                        .frame(maxWidth: .infinity, maxHeight: .infinity).clipped()
+                }
+                LinearGradient(colors: [.clear, .black.opacity(0.85)], startPoint: .top, endPoint: .bottom)
+                    .frame(height: 80).frame(maxHeight: .infinity, alignment: .bottom)
+            }
+            VStack(alignment: .leading, spacing: 2) {
+                if let title = item.linkTitle {
+                    Text(title).font(.system(size: 13, weight: .semibold)).lineLimit(image == nil ? 5 : 2)
+                }
+                Text(host).font(.caption).foregroundStyle(.secondary).lineLimit(1)
+                if image == nil && item.linkTitle != nil {
+                    Text(item.text ?? "").font(.caption2).foregroundStyle(.tertiary).lineLimit(2)
+                }
+            }
+            .padding(10)
+            .frame(maxWidth: .infinity, maxHeight: image == nil ? .infinity : nil, alignment: .topLeading)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .clipped()
+    }
+}
+
+/// Subtle pending state while a link preview is being fetched.
+private struct LinkLoadingBody: View {
+    let text: String
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(text).font(.system(size: 13)).lineLimit(4)
+            Spacer(minLength: 0)
+            HStack(spacing: 6) {
+                ProgressView().controlSize(.small)
+                Text("Loading preview…").font(.caption).foregroundStyle(.secondary)
+            }
+        }
+        .padding(10)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
     }
 }

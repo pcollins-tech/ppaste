@@ -16,13 +16,22 @@ public struct ClipItem: Codable, Identifiable, Equatable, Sendable, FetchableRec
     public var sourceName: String?
     public var contentHash: String
     public var createdAt: Date
+    /// Link preview metadata. `linkFetchedAt` marks that a fetch was attempted (even if it found nothing).
+    public var linkTitle: String?
+    public var linkImagePath: String?
+    public var linkImageIsIcon: Bool?
+    public var linkFetchedAt: Date?
 
     public init(id: Int64? = nil, kind: ClipKind, text: String? = nil, imagePath: String? = nil,
                 sourceBundleID: String? = nil, sourceName: String? = nil,
-                contentHash: String, createdAt: Date = Date()) {
+                contentHash: String, createdAt: Date = Date(),
+                linkTitle: String? = nil, linkImagePath: String? = nil, linkImageIsIcon: Bool? = nil,
+                linkFetchedAt: Date? = nil) {
         self.id = id; self.kind = kind; self.text = text; self.imagePath = imagePath
         self.sourceBundleID = sourceBundleID; self.sourceName = sourceName
         self.contentHash = contentHash; self.createdAt = createdAt
+        self.linkTitle = linkTitle; self.linkImagePath = linkImagePath
+        self.linkImageIsIcon = linkImageIsIcon; self.linkFetchedAt = linkFetchedAt
     }
 
     public var characterCount: Int { text?.count ?? 0 }
