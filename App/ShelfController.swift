@@ -41,7 +41,7 @@ final class ShelfController {
         model.pendingIDs = fetcher.pendingIDs
         model.reset()
         let screen = NSScreen.screens.first { $0.frame.contains(NSEvent.mouseLocation) } ?? NSScreen.main!
-        let height: CGFloat = 340
+        let height: CGFloat = 380 // room for the pinboard tab strip
         let frame = NSRect(x: screen.frame.minX + 8, y: screen.frame.minY + 8,
                            width: screen.frame.width - 16, height: height)
         if panel == nil {
