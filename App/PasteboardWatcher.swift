@@ -20,8 +20,10 @@ final class PasteboardWatcher {
     init(store: ClipStore, imageDir: URL) { self.store = store; self.imageDir = imageDir }
 
     func start() {
-        timer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { [weak self] _ in self?.poll() }
-        timer?.tolerance = 0.2
+        let t = Timer(timeInterval: 0.5, repeats: true) { [weak self] _ in self?.poll() }
+        t.tolerance = 0.2
+        RunLoop.main.add(t, forMode: .common) // keep polling while menus/panels are tracking events
+        timer = t
     }
 
     /// Call after ppaste writes to the pasteboard itself so it isn't recaptured as a new copy.

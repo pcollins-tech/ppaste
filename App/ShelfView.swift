@@ -55,6 +55,12 @@ struct ShelfView: View {
         .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 22))
         .preferredColorScheme(.dark)
         .onAppear { searchFocused = true }
+        .background(
+            // Cmd+F focuses the search field, even after clicking a card
+            Button("") { searchFocused = true }
+                .keyboardShortcut("f", modifiers: .command)
+                .opacity(0).accessibilityHidden(true)
+        )
         .onKeyPress(.leftArrow) { model.move(-1); return .handled }
         .onKeyPress(.rightArrow) { model.move(1); return .handled }
         .onKeyPress(.escape) {

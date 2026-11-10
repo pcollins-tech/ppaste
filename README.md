@@ -20,7 +20,7 @@ Built as a free, open-source alternative to paid clipboard managers. No account,
 | Key | Action |
 | --- | --- |
 | Cmd+Shift+V or Ctrl+Shift+V | Open / close the shelf |
-| Type | Search |
+| Type, or Cmd+F | Search (Cmd+F refocuses the search field) |
 | Left / Right | Move between cards |
 | Enter | Paste the selected card into the previous app |
 | Cmd+1 ... Cmd+9 | Paste the 1st-9th card |
