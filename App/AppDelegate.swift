@@ -14,8 +14,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     private var linkPreviewDir: URL!
 
     func applicationDidFinishLaunching(_ notification: Notification) {
-        let support = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
-            .appendingPathComponent("ppaste", isDirectory: true)
+        // PPASTE_DATA_DIR runs against a separate data folder (used for demos/screenshots and testing).
+        // In that mode the clipboard watcher is off, so the real clipboard never leaks into the demo data.
+        let dataDirOverride = ProcessInfo.processInfo.environment["PPASTE_DATA_DIR"]
+        let support = dataDirOverride.map { URL(fileURLWithPath: $0, isDirectory: true) }
+            ?? FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
+                .appendingPathComponent("ppaste", isDirectory: true)
         try? FileManager.default.createDirectory(at: support, withIntermediateDirectories: true)
         do { store = try ClipStore(path: support.appendingPathComponent("history.sqlite").path) }
         catch { NSAlert(error: error).runModal(); NSApp.terminate(nil); return }
@@ -27,7 +31,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         fetcher = LinkPreviewFetcher(store: store, imageDir: linkPreviewDir)
         watcher = PasteboardWatcher(store: store, imageDir: imageDir)
         watcher.onLinkSaved = { [weak self] item in self?.fetcher.enqueue(item) }
-        watcher.start()
+        if dataDirOverride == nil { watcher.start() }
         pruneImages(in: imageDir)
         let pruneTimer = Timer(timeInterval: 6 * 3600, repeats: true) { [weak self] _ in
             if let self { self.pruneImages(in: imageDir) }
@@ -38,6 +42,19 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         shelf = ShelfController(store: store, watcher: watcher, fetcher: fetcher)
         for mods: NSEvent.ModifierFlags in [[.command, .shift], [.control, .shift]] {
             hotKeys.append(HotKey(keyCode: 9 /* V */, modifiers: mods) { [weak self] in self?.shelf.toggle() })
+        }
+
+        if let out = ProcessInfo.processInfo.environment["PPASTE_SNAPSHOT_FILE"] {
+            // Demo/docs only: open the shelf (optionally on a pinboard tab), write a PNG, quit.
+            let board = ProcessInfo.processInfo.environment["PPASTE_SNAPSHOT_PINBOARD"].flatMap(Int.init)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) { [weak self] in self?.shelf.toggle() }
+            if let board { DispatchQueue.main.asyncAfter(deadline: .now() + 0.9) { [weak self] in self?.shelf.selectPinboard(at: board) } }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) { [weak self] in
+                self?.shelf.snapshot(to: out)
+                NSApp.terminate(nil)
+            }
+        } else if ProcessInfo.processInfo.environment["PPASTE_SHOW_SHELF"] != nil {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) { [weak self] in self?.shelf.toggle() }
         }
 
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)

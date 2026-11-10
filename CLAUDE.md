@@ -17,3 +17,6 @@ Personal macOS clipboard-history app (Paste replacement). Swift, macOS 14+, menu
 - Skips concealed/transient pasteboard items and password-manager apps.
 - Pasting simulates Cmd+V, which needs Accessibility permission (ad-hoc signing may reset the grant on rebuild).
 - UI rule: any control that triggers async work must show a pending state.
+
+## Demo / screenshots
+`PPASTE_DATA_DIR=<dir>` uses a separate data folder (watcher off). `PPASTE_SNAPSHOT_FILE=<png>` (+ optional `PPASTE_SNAPSHOT_PINBOARD=<index>`) opens the shelf, writes a PNG and quits. Never screenshot the real history: it contains private clipboard data. Seed a demo DB with fake rows instead (`docs/*.png` were made this way).

@@ -1,7 +1,7 @@
 import SwiftUI
 import PPasteCore
 
-enum ShelfTab: Equatable {
+enum ShelfTab: Hashable {
     case clipboard
     case pinboard(Int64)
 }
@@ -273,6 +273,7 @@ struct ShelfView: View {
                             .contextMenu { cardMenu(item, idx: idx) }
                     }
                 }.padding(.horizontal, 16)
+                .id(model.tab) // rebuild the lazy row when switching tabs so cards never show stale content
             }
             .onChange(of: model.selection) { _, new in withAnimation { proxy.scrollTo(new, anchor: .center) } }
         }
@@ -346,6 +347,7 @@ struct TabChip: View {
 }
 
 struct CardView: View {
+    static let width: CGFloat = 230
     let item: ClipItem
     let index: Int
     let selected: Bool
@@ -390,7 +392,7 @@ struct CardView: View {
                 Spacer(); Text("\(index)")
             }.font(.caption).foregroundStyle(.secondary).padding(10)
         }
-        .frame(width: 230, height: 240)
+        .frame(width: Self.width, height: 240)
         .background(Color(white: 0.07), in: RoundedRectangle(cornerRadius: 14))
         .clipShape(RoundedRectangle(cornerRadius: 14))
         .overlay(RoundedRectangle(cornerRadius: 14).stroke(selected ? Color.accentColor : .clear, lineWidth: 3))
@@ -436,7 +438,8 @@ private struct LinkPreviewBody: View {
             .padding(10)
             .frame(maxWidth: .infinity, maxHeight: image == nil ? .infinity : nil, alignment: .topLeading)
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .frame(width: CardView.width) // a scaledToFill image would otherwise widen the card layout and shift the header/footer
+        .frame(maxHeight: .infinity)
         .clipped()
     }
 }

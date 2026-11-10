@@ -34,6 +34,32 @@ final class ShelfController {
         }
     }
 
+    /// Dev/demo only: render the shelf to a PNG over a plain backdrop (no screen-recording permission needed).
+    func selectPinboard(at index: Int) {
+        if model.pinboards.indices.contains(index), let id = model.pinboards[index].id { model.select(.pinboard(id)) }
+    }
+
+    func snapshot(to path: String) {
+        guard let view = panel?.contentView else { return }
+        view.layoutSubtreeIfNeeded()
+        guard let rep = view.bitmapImageRepForCachingDisplay(in: view.bounds) else { return }
+        view.cacheDisplay(in: view.bounds, to: rep)
+        let inset: CGFloat = 40
+        let size = NSSize(width: view.bounds.width + inset * 2, height: view.bounds.height + inset * 2)
+        let out = NSImage(size: size)
+        out.lockFocus()
+        NSGradient(colors: [NSColor(red: 0.20, green: 0.16, blue: 0.45, alpha: 1), NSColor(red: 0.06, green: 0.20, blue: 0.40, alpha: 1)])!
+            .draw(in: NSRect(origin: .zero, size: size), angle: -30)
+        NSColor(white: 0.10, alpha: 0.92).setFill()
+        NSBezierPath(roundedRect: NSRect(x: inset, y: inset, width: view.bounds.width, height: view.bounds.height), xRadius: 22, yRadius: 22).fill()
+        NSImage(size: view.bounds.size, flipped: false) { _ in rep.draw(in: NSRect(origin: .zero, size: view.bounds.size)); return true }
+            .draw(at: NSPoint(x: inset, y: inset), from: .zero, operation: .sourceOver, fraction: 1)
+        out.unlockFocus()
+        if let tiff = out.tiffRepresentation, let png = NSBitmapImageRep(data: tiff)?.representation(using: .png, properties: [:]) {
+            try? png.write(to: URL(fileURLWithPath: path))
+        }
+    }
+
     func toggle() { panel?.isVisible == true ? hide() : show() }
 
     private func show() {
