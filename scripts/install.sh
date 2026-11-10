@@ -7,7 +7,7 @@ cd "$(dirname "$0")/.."
 IDENTITY="${CODESIGN_IDENTITY:--}"
 xcodegen generate >/dev/null
 xcodebuild -project PPaste.xcodeproj -scheme PPaste -configuration Release \
-  -derivedDataPath build CODE_SIGN_IDENTITY="$IDENTITY" build | tail -1
+  -derivedDataPath build build | tail -1
 
 APP="build/Build/Products/Release/PPaste.app"
 pkill -f "PPaste.app/Contents/MacOS/PPaste" 2>/dev/null || true
