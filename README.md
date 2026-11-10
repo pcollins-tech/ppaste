@@ -2,7 +2,7 @@
 
 A fast, local-only clipboard history for macOS. Press a hotkey, and a shelf of your recent copies slides up along the bottom of the screen. Search, pick one, and it's pasted into the app you were using.
 
-Built as a free, open-source alternative to paid clipboard managers. No account, no cloud, no tracking: your history never leaves your Mac.
+Built as a free, open-source alternative to paid clipboard managers. No account, no cloud, no tracking: your history never leaves your Mac. (The one network feature, link previews, is optional - see [Privacy](#privacy).)
 
 ## Features
 
@@ -10,10 +10,11 @@ Built as a free, open-source alternative to paid clipboard managers. No account,
 - **Pinboards** - named collections of saved clips, shown as tabs along the top of the shelf. Pinned clips are never pruned (including images). Create one with "+", rename/delete from a tab's right-click menu
 - **Instant search** - just start typing when the shelf is open
 - **Paste straight into the previous app** with Enter, or quick-paste the first nine items with Cmd+1-9
-- **Long history** - text and links are kept forever; images are pruned after 30 days
+- **Long history** - text and links are kept forever; images are pruned after 30 days unless they are pinned to a pinboard
 - **Duplicates are merged** - copying something again moves it to the front instead of cluttering the list
 - **Rich link previews** - copied web links show the page title and preview image (falls back to the site icon), fetched in the background; can be switched off from the menu bar (see Privacy)
 - **Privacy-aware** - ignores concealed/transient pasteboard items and password managers (1Password, Bitwarden, KeePassXC, Keychain, Passwords)
+- **Launch at login** - toggle it from the menu-bar menu (works once ppaste is installed in `/Applications`, which `scripts/install.sh` does for you)
 - **Menu-bar only** - no Dock icon, native Swift/SwiftUI, tiny footprint
 - **Local storage** in a SQLite database at `~/Library/Application Support/ppaste/`
 
