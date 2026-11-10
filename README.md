@@ -1,10 +1,28 @@
-# ppaste
+<p align="center">
+  <img src="docs/icon.png" width="128" alt="ppaste app icon">
+</p>
 
-A fast, local-only clipboard history for macOS. Press a hotkey, and a shelf of your recent copies slides up along the bottom of the screen. Search, pick one, and it's pasted into the app you were using.
+<h1 align="center">ppaste</h1>
 
-Built as a free, open-source alternative to paid clipboard managers. No account, no cloud, no tracking: your history never leaves your Mac. (The one network feature, link previews, is optional - see [Privacy](#privacy).)
+<p align="center">
+  <b>A fast, local-only clipboard history for macOS.</b><br>
+  Press a hotkey, search, pick, and it's pasted into the app you were using.
+</p>
 
-## Features
+<p align="center">
+  <img alt="macOS 14+" src="https://img.shields.io/badge/macOS-14%2B-6c5ce7?logo=apple&logoColor=white">
+  <img alt="Swift" src="https://img.shields.io/badge/Swift-SwiftUI-f0883e?logo=swift&logoColor=white">
+  <img alt="Local only" src="https://img.shields.io/badge/data-100%25%20local-2ea043">
+  <img alt="Open source" src="https://img.shields.io/badge/licence-MIT-4cc9f0">
+</p>
+
+---
+
+Built as a free, open-source alternative to paid clipboard managers. No account, no cloud, no tracking: your history never leaves your Mac. (The one network feature, link previews, is optional - see [Privacy](#-privacy).)
+
+> **Cmd+Shift+V** &rarr; a shelf of your recent copies slides up along the bottom of the screen.
+
+## ✨ Features
 
 - **Bottom shelf** of cards: text, links and images, each with the source app's icon, a relative timestamp and a character count
 - **Pinboards** - named collections of saved clips, shown as tabs along the top of the shelf. Pinned clips are never pruned (including images). Create one with "+", rename/delete from a tab's right-click menu
@@ -18,7 +36,7 @@ Built as a free, open-source alternative to paid clipboard managers. No account,
 - **Menu-bar only** - no Dock icon, native Swift/SwiftUI, tiny footprint
 - **Local storage** in a SQLite database at `~/Library/Application Support/ppaste/`
 
-## Keyboard shortcuts
+## ⌨️ Keyboard shortcuts
 
 | Key | Action |
 | --- | --- |
@@ -35,7 +53,7 @@ Built as a free, open-source alternative to paid clipboard managers. No account,
 
 Binding Cmd+Shift+V overrides "Paste and Match Style" in other apps while ppaste is running.
 
-## Install
+## 📦 Install
 
 Requires macOS 14 (Sonoma) or later and Xcode.
 
@@ -54,7 +72,7 @@ The first time you paste, macOS asks for **Accessibility** access. ppaste needs 
 
 The app is signed ad-hoc, so macOS may ask you to grant Accessibility again after a rebuild. To avoid that, sign with a stable identity: `CODESIGN_IDENTITY="Your Certificate Name" ./scripts/install.sh`.
 
-## Development
+## 🛠 Development
 
 ```sh
 swift test          # unit tests for the core library
@@ -68,13 +86,13 @@ xcodegen generate   # regenerate PPaste.xcodeproj from project.yml
 | `App/` | Menu bar, global hotkey, pasteboard watcher, shelf UI |
 | `project.yml` | XcodeGen project definition |
 
-## Roadmap
+## 🗺 Roadmap
 
 - Rich text and file clips, with true "paste as plain text"
 - Configurable hotkey and ignore list
 - Full-text search
 
-## Privacy
+## 🔒 Privacy
 
 ppaste stores everything on your machine. Anything you copy is saved, so treat the history folder like your clipboard: it can contain sensitive data. Use the menu-bar item "Clear All History..." to wipe it.
 
@@ -86,11 +104,11 @@ ppaste stores everything on your machine. Anything you copy is saved, so treat t
 - Not covered: a link can still be private without looking it. A hostname that publicly resolves to an internal address is not detected, and secrets embedded in a URL path are not detected. If that matters to you, turn previews off.
 - Preview images are stored in `~/Library/Application Support/ppaste/link-previews/` and deleted after 30 days, like image clips. The link and its title are kept.
 
-## Contributing
+## 🤝 Contributing
 
 Issues and pull requests are welcome. Please run `swift test` before opening a PR.
 
-## Licence
+## 📄 Licence
 
 [MIT](LICENSE)
 
