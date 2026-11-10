@@ -22,6 +22,18 @@ Built as a free, open-source alternative to paid clipboard managers. No account,
 
 > **Cmd+Shift+V** &rarr; a shelf of your recent copies slides up along the bottom of the screen.
 
+<p align="center">
+  <img src="docs/shelf.png" alt="The ppaste shelf showing recent text and link clips" width="100%">
+</p>
+
+<p align="center"><i>Pin the things you reach for most into pinboards:</i></p>
+
+<p align="center">
+  <img src="docs/pinboard.png" alt="A pinboard of links with preview images" width="100%">
+</p>
+
+<sub>Screenshots use made-up demo data.</sub>
+
 ## ✨ Features
 
 - **Bottom shelf** of cards: text, links and images, each with the source app's icon, a relative timestamp and a character count
@@ -85,6 +97,8 @@ xcodegen generate   # regenerate PPaste.xcodeproj from project.yml
 | `Tests/PPasteCoreTests` | Unit tests for the core |
 | `App/` | Menu bar, global hotkey, pasteboard watcher, shelf UI |
 | `project.yml` | XcodeGen project definition |
+
+Dev switches (environment variables): `PPASTE_DATA_DIR=/some/folder` runs against a separate data folder with the clipboard watcher off, and `PPASTE_SNAPSHOT_FILE=out.png [PPASTE_SNAPSHOT_PINBOARD=0]` renders the shelf to a PNG and quits. That is how the screenshots above were made, from a demo database.
 
 ## 🗺 Roadmap
 
