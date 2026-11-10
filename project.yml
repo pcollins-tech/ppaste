@@ -1,0 +1,26 @@
+name: PPaste
+options:
+  bundleIdPrefix: tech.pcollins
+  deploymentTarget:
+    macOS: "14.0"
+packages:
+  PPasteCore:
+    path: .
+targets:
+  PPaste:
+    type: application
+    platform: macOS
+    sources: [App]
+    dependencies:
+      - package: PPasteCore
+        product: PPasteCore
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: tech.pcollins.ppaste
+        SWIFT_VERSION: "5.0"
+        CODE_SIGN_IDENTITY: "-"
+        CODE_SIGN_STYLE: Manual
+        ENABLE_HARDENED_RUNTIME: NO
+        GENERATE_INFOPLIST_FILE: YES
+        INFOPLIST_KEY_LSUIElement: YES
+        INFOPLIST_KEY_CFBundleDisplayName: ppaste
