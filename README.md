@@ -40,11 +40,12 @@ Built as a free, open-source alternative to paid clipboard managers. No account,
 - **Pinboards** - named collections of saved clips, shown as tabs along the top of the shelf. Pinned clips are never pruned (including images). Create one with "+", rename/delete from a tab's right-click menu
 - **Instant search** - just start typing when the shelf is open
 - **Paste straight into the previous app** with Enter, or quick-paste the first nine items with Cmd+1-9
-- **Long history** - text and links are kept forever; images are pruned after 30 days unless they are pinned to a pinboard
+- **Long history** - text and links are kept forever; images are pruned after 30 days by default (configurable) unless they are pinned to a pinboard
 - **Duplicates are merged** - copying something again moves it to the front instead of cluttering the list
 - **Rich link previews** - copied web links show the page title and preview image (falls back to the site icon), fetched in the background; can be switched off from the menu bar (see Privacy)
 - **Privacy-aware** - ignores concealed/transient pasteboard items and password managers (1Password, Bitwarden, KeePassXC, Keychain, Passwords)
-- **Launch at login** - toggle it from the menu-bar menu (works once ppaste is installed in `/Applications`, which `scripts/install.sh` does for you)
+- **Settings** (menu bar → Settings…, ⌘,) - record your own shortcuts, choose how long images are kept, ignore specific apps, toggle link previews
+- **Launch at login** - toggle it in Settings or the menu-bar menu (works once ppaste is installed in `/Applications`, which `scripts/install.sh` does for you)
 - **Menu-bar only** - no Dock icon, native Swift/SwiftUI, tiny footprint
 - **Local storage** in a SQLite database at `~/Library/Application Support/ppaste/`
 
@@ -103,7 +104,6 @@ Dev switches (environment variables): `PPASTE_DATA_DIR=/some/folder` runs agains
 ## 🗺 Roadmap
 
 - Rich text and file clips, with true "paste as plain text"
-- Configurable hotkey and ignore list
 - Full-text search
 
 ## 🔒 Privacy

@@ -39,7 +39,7 @@ final class PasteboardWatcher {
         let types = Set(pb.types ?? [])
         if Self.skipTypes.contains(where: types.contains) { return }
         let app = NSWorkspace.shared.frontmostApplication
-        if let id = app?.bundleIdentifier, Self.ignoredBundleIDs.contains(id) { return }
+        if let id = app?.bundleIdentifier, (Self.ignoredBundleIDs.contains(id) || AppSettings.ignoredBundleIDs.contains(id)) { return }
 
         var item: ClipItem?
         if let text = pb.string(forType: .string), !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
